@@ -9,8 +9,9 @@ Created on May 5, 2011
 
 @author: evan
 '''
+import collections
 
-class KayakoError(StandardError):
+class KayakoError(Exception):
 
     @property
     def read(self):
@@ -21,7 +22,7 @@ class KayakoError(StandardError):
         if self.args:
             for arg in self.args:
                 if hasattr(arg, 'read'):
-                    if callable(arg.read):
+                    if isinstance(arg.read, collections.Callable):
                         return arg.read
                     else:
                         return lambda: arg.read

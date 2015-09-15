@@ -85,7 +85,7 @@ class KnowledgebaseAttachment(KayakoObject):
 	def get(cls, api, kbarticleid, attachmentid):
 		try:
 			response = api._request('%s/%s/%s/' % (cls.controller, kbarticleid, attachmentid), 'GET')
-		except KayakoResponseError, error:
+		except KayakoResponseError as error:
 			if 'HTTP Error 404' in str(error):
 				return None
 			else:

@@ -22,35 +22,35 @@ class KayakoRequestParser(NodeParser):
     def _parse_int(data, required=True, strict=True):
         try:
             return NodeParser._parse_int(data, required=required, strict=strict)
-        except Exception, error:
+        except Exception as error:
             raise KayakoResponseError('There was an error parsing the response (_parse_int(%s, required=%s, strict=%s):\n\t%s' % (data, required, strict, error))
 
     @staticmethod
     def _parse_date(data, required=True, strict=True):
         try:
             return NodeParser._parse_date(data, required=required, strict=strict)
-        except Exception, error:
+        except Exception as error:
             raise KayakoResponseError('There was an error parsing the response (_parse_date(%s, required=%s, strict=%s):\n\t%s' % (data, required, strict, error))
 
     @staticmethod
     def _get_int(node, required=True, strict=True):
         try:
             return NodeParser._get_int(node, required=required, strict=strict)
-        except Exception, error:
+        except Exception as error:
             raise KayakoResponseError('There was an error parsing the response (_get_int(%s, required=%s, strict=%s):\n\t%s' % (node, required, strict, error))
 
     @staticmethod
     def _get_boolean(node, required=True, strict=True):
         try:
             return NodeParser._get_boolean(node, required=required, strict=strict)
-        except Exception, error:
+        except Exception as error:
             raise KayakoResponseError('There was an error parsing the response (_get_boolean(%s, required=%s, strict=%s):\n\t%s' % (node, required, strict, error))
 
     @staticmethod
     def _get_date(node, required=True, strict=True):
         try:
             return NodeParser._get_date(node, required=required, strict=strict)
-        except Exception, error:
+        except Exception as error:
             raise KayakoResponseError('There was an error parsing the response (_get_date(%s, required=%s, strict=%s):\n\t%s' % (node, required, strict, error))
 
     def __str__(self):

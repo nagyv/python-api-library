@@ -106,7 +106,7 @@ class KnowledgebaseComment(KayakoObject):
 	def get(cls, api, knowledgebasearticleid, id):
 		try:
 			response = api._request('%s/%s/' % (cls.controller, id), 'GET')
-		except KayakoResponseError, error:
+		except KayakoResponseError as error:
 			if 'HTTP Error 404' in str(error):
 				return None
 			else:

@@ -26,7 +26,7 @@ class TestKayakoObject(KayakoTest):
         return KayakoObject(self.api)
 
     def test_kayako_object(self):
-        self.assert_(self.kayako_object)
+        self.assertTrue(self.kayako_object)
 
     def test_kayko_get(self):
         from kayako.exception import KayakoMethodNotImplementedError

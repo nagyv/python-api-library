@@ -89,7 +89,7 @@ class TroubleshooterAttachment(KayakoObject):
 	def get(cls, api, troubleshooterstepid, attachmentid):
 		try:
 			response = api._request('%s/%s/%s/' % (cls.controller, troubleshooterstepid, attachmentid), 'GET')
-		except KayakoResponseError, error:
+		except KayakoResponseError as error:
 			if 'HTTP Error 404' in str(error):
 				return None
 			else:

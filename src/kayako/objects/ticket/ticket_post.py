@@ -130,7 +130,7 @@ class TicketPost(KayakoObject):
     def get(cls, api, ticketid, id):
         try:
             response = api._request('%s/%s/%s/' % (cls.controller, ticketid, id), 'GET')
-        except KayakoResponseError, error:
+        except KayakoResponseError as error:
             if 'HTTP Error 404' in str(error):
                 return None
             else:

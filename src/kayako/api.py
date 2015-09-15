@@ -16,8 +16,8 @@ import hashlib
 import hmac
 import logging
 import random
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import time
 from datetime import datetime
 
@@ -388,7 +388,7 @@ class KayakoAPI(object):
         Sanitize a dictionary of parameters for a request.
         '''
         result = dict()
-        for key, value in parameters.iteritems():
+        for key, value in parameters.items():
             result[key] = self._sanitize_parameter(value)
         return result
 
@@ -398,15 +398,15 @@ class KayakoAPI(object):
         '''
         data = None
         first = True
-        for key, value in parameters.iteritems():
+        for key, value in parameters.items():
             if isinstance(value, list):
                 if len(value):
                     for sub_value in value:
                         if first:
-                            data = '%s[]=%s' % (key, urllib2.quote(sub_value))
+                            data = '%s[]=%s' % (key, urllib.parse.quote(sub_value))
                             first = False
                         else:
-                            data = '%s&%s[]=%s' % (data, key, urllib2.quote(sub_value))
+                            data = '%s&%s[]=%s' % (data, key, urllib.parse.quote(sub_value))
                 else:
                     if first:
                         data = '%s[]=' % key
@@ -414,10 +414,10 @@ class KayakoAPI(object):
                     else:
                         data = '%s&%s[]=' % (data, key)
             elif first:
-                data = '%s=%s' % (key, urllib2.quote(value))
+                data = '%s=%s' % (key, urllib.parse.quote(value))
                 first = False
             else:
-                data = '%s&%s=%s' % (data, key, urllib2.quote(value))
+                data = '%s&%s=%s' % (data, key, urllib.parse.quote(value))
         return data
 
     def _generate_signature(self):
@@ -442,25 +442,25 @@ class KayakoAPI(object):
         salt, b64signature = self._generate_signature()
 
         if method == 'GET':
-            url = '%s?e=%s&apikey=%s&salt=%s&signature=%s' % (self.api_url, urllib.quote(controller), urllib.quote(self.api_key), salt, urllib.quote(b64signature))
+            url = '%s?e=%s&apikey=%s&salt=%s&signature=%s' % (self.api_url, urllib.parse.quote(controller), urllib.parse.quote(self.api_key), salt, urllib.parse.quote(b64signature))
             # Append additional query args if necessary
             data = self._post_data(**self._sanitize_parameters(**parameters)) if parameters else None
             if data:
                 url = '%s&%s' % (url, data)
-            request = urllib2.Request(url)
+            request = urllib.request.Request(url)
         elif method == 'POST' or method == 'PUT':
-            url = '%s?e=%s' % (self.api_url, urllib.quote(controller))
+            url = '%s?e=%s' % (self.api_url, urllib.parse.quote(controller))
             # Auth parameters go in the body for these methods
             parameters['apikey'] = self.api_key
             parameters['salt'] = salt
             parameters['signature'] = b64signature
             data = self._post_data(**self._sanitize_parameters(**parameters))
-            request = urllib2.Request(url, data=data, headers={'Content-length' : len(data) if data else 0})
+            request = urllib.request.Request(url, data=data, headers={'Content-length' : len(data) if data else 0})
             request.get_method = lambda: method
         elif method == 'DELETE': # DELETE
-            url = '%s?e=%s&apikey=%s&salt=%s&signature=%s' % (self.api_url, urllib.quote(controller), urllib.quote(self.api_key), salt, urllib.quote(b64signature))
+            url = '%s?e=%s&apikey=%s&salt=%s&signature=%s' % (self.api_url, urllib.parse.quote(controller), urllib.parse.quote(self.api_key), salt, urllib.parse.quote(b64signature))
             data = self._post_data(**self._sanitize_parameters(**parameters))
-            request = urllib2.Request(url, data=data, headers={'Content-length' : len(data) if data else 0})
+            request = urllib.request.Request(url, data=data, headers={'Content-length' : len(data) if data else 0})
             request.get_method = lambda: method
         else:
             raise KayakoRequestError('Invalid request method: %s not supported.' % method)
@@ -469,12 +469,12 @@ class KayakoAPI(object):
         log.debug('REQUEST DATA: %s' % data)
 
         try:
-            response = urllib2.urlopen(request)
-        except urllib2.HTTPError, error:
+            response = urllib.request.urlopen(request)
+        except urllib.error.HTTPError as error:
             response_error = KayakoResponseError('%s: %s' % (error, error.read()))
             log.error(response_error)
             raise response_error
-        except urllib2.URLError, error:
+        except urllib.error.URLError as error:
             request_error = KayakoRequestError(error)
             log.error(request_error)
             raise request_error
@@ -522,7 +522,7 @@ class KayakoAPI(object):
         Returns whether or not every given attribute of an object is equal
         to the given values.
         '''
-        for key, value in filter.iteritems():
+        for key, value in filter.items():
             attr = getattr(object, key)
             if isinstance(attr, list):
                 if value not in attr:

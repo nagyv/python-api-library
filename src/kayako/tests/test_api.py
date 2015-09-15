@@ -106,7 +106,7 @@ class TestKayakoAPI(KayakoAPITest):
         ''' Test the signature generation process '''
         import hmac
         import base64
-        import urllib
+        import urllib.request, urllib.parse, urllib.error
         import hashlib
 
         secretkey = "secretkey"
@@ -117,7 +117,7 @@ class TestKayakoAPI(KayakoAPITest):
         # base64 encode...
         encoded_signature = base64.b64encode(signature)
         # urlencode...
-        url_encoded_signature = urllib.quote(encoded_signature)
+        url_encoded_signature = urllib.parse.quote(encoded_signature)
         assert url_encoded_signature == 'VKjt8M54liY6xq1UuhUYH5BFp1RUqHekqytgLPrVEA0%3D'
 
     def test_get(self):
@@ -176,7 +176,7 @@ class TestKayakoAPI(KayakoAPITest):
         raised = False
         try:
             api._request('testing testing', 'GET')
-        except KayakoRequestError, error:
+        except KayakoRequestError as error:
             self.log(error)
             raised = True
         assert raised

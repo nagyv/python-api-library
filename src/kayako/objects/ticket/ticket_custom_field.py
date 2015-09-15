@@ -51,7 +51,7 @@ class CustomFieldTypes(object):
 
     @classmethod
     def id_by_name(cls, name):
-        for key, value in cls.TYPES.iteritems():
+        for key, value in cls.TYPES.items():
             if name == value:
                 return key
 
@@ -118,7 +118,7 @@ class TicketCustomField(KayakoObject):
         '''
         try:
             response = api._request('%s/%s' % (cls.controller, ticketid), 'GET')
-        except KayakoResponseError, error:
+        except KayakoResponseError as error:
             if 'HTTP Error 404' in str(error):
                 return None
             else:

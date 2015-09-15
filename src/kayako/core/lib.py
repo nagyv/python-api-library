@@ -21,7 +21,7 @@ __all__ = [
 
 class _unsetparameter(object):
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
 
     def __call__(self):
@@ -81,7 +81,7 @@ class ParameterObject(object):
         return params
 
     def _update_parameters(self, **parameters):
-        for parameter, value in parameters.iteritems():
+        for parameter, value in parameters.items():
             if parameter not in self.__parameters__:
                 raise TypeError("'%s' is an invalid keyword argument for %s" % (parameter, self.__class__.__name__))
             else:

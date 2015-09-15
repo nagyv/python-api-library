@@ -91,7 +91,7 @@ class TicketAttachment(KayakoObject):
     def get(cls, api, ticketid, attachmentid):
         try:
             response = api._request('%s/%s/%s/' % (cls.controller, ticketid, attachmentid), 'GET')
-        except KayakoResponseError, error:
+        except KayakoResponseError as error:
             if 'HTTP Error 404' in str(error):
                 return None
             else:
