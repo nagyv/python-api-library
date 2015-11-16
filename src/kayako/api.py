@@ -27,6 +27,8 @@ from kayako.exception import KayakoRequestError, KayakoResponseError, KayakoInit
 from kayako.core.lib import FOREVER
 from kayako.objects.ticket import Ticket
 from kayako.objects.user import User
+import requests
+
 
 log = logging.getLogger('kayako')
 
@@ -79,7 +81,7 @@ class KayakoAPI(object):
         >>> # Lets see all of our Departments (yours will vary.)
         >>> for dept in api.get_all(Department):
         ...     print dept
-        ... 
+        ...
         <Department (1): General/tickets>
         <Department (2): Suggest A Store/tickets>
         <Department (3): Report A Bug/tickets>
@@ -104,13 +106,13 @@ class KayakoAPI(object):
         >>>
         >>> # We will use this Department in the next example so lets wait to clean up the test data...
         >>> #department.delete()
-    
+
     Add a Staff member::
-    
+
         >>> from kayako import Staff, StaffGroup
         >>>
         >>> # You can set parameters in the create method.
-        >>> staff = api.create(Staff, firstname='John', lastname='Doe', email='foo@example.com', username='explodes', password='easypass332') 
+        >>> staff = api.create(Staff, firstname='John', lastname='Doe', email='foo@example.com', username='explodes', password='easypass332')
         >>>
         >>> # We need to add a Staff member to a staff group.
         >>> # Lets get the first StaffGroup titled "Administrator"
@@ -124,9 +126,9 @@ class KayakoAPI(object):
         >>>
         >>> # We will use this Staff in the next example so lets wait to clean up the test data...
         >>> #staff.delete()
-        
+
     Add a User::
-    
+
         >>> from kayako import User, UserGroup, FOREVER
         >>>
         >>> # What fields can we add to this User?
@@ -141,9 +143,9 @@ class KayakoAPI(object):
         >>>
         >>> # Its that easy.  We will use this user in the next example so lets wait to clean up the test data...
         >>> # user.delete()
-        
+
     Add a Ticket and a TicketNote::
-    
+
         >>> from kayako import TicketStatus, TicketPriority
         >>>
         >>> # Lets add a "Bug" Ticket to any Ticket Department, with "Open" status and "High" priority for a user. Lets use the user and department from above.
@@ -189,120 +191,120 @@ class KayakoAPI(object):
         >>> user.delete()
         >>> staff.delete()
         >>> department.delete()
-    
+
     **API Factory Methods:**
-    
+
     ``api.create(Object, *args, **kwargs)``
-    
+
         Create and return a new ``KayakoObject`` of the type given passing in args and kwargs.
-        
+
     ``api.get_all(Object, *args, **kwargs)``
-    
+
         *Get all ``KayakoObjects`` of the given type.*
         *In most cases, all items are returned.*
-        
+
         e.x. ::
-        
+
             >>> api.get_all(Department)
             [<Department....>, ....]
-    
+
         *Special Cases:*
-        
+
             ``api.get_all(User, marker=1, maxitems=1000)``
-                Return all ``Users`` from userid ``marker`` with up to ``maxitems`` 
+                Return all ``Users`` from userid ``marker`` with up to ``maxitems``
                 results (max 1000.)
-                
+
             ``api.get_all(Ticket, departmentid, ticketstatusid=-1, ownerstaffid=-1, userid=-1)``
-                Return all ``Tickets`` filtered by the required argument 
+                Return all ``Tickets`` filtered by the required argument
                 ``departmentid`` and by the optional keyword arguments.
-                
+
             ``api.get_all(TicketAttachment, ticketid)``
                 Return all ``TicketAttachments`` for a ``Ticket`` with the given ID.
-                
+
             ``api.get_all(TicketPost, ticketid)``
                 Return all ``TicketPosts`` for a ``Ticket`` with the given ID.
-                
+
             ``api.get_all(TicketCustomField, ticketid)``
                 Return all ``TicketCustomFieldGroups`` for a ``Ticket`` with the given ID.
                 Returns a ``list`` of ``TicketCustomFieldGroups``.
-                
+
             ``api.get_all(TicketCount)``
                 Returns only one object: ``TicketCount`` not a ``list`` of objects.
-    
+
     ``api.filter(Object, args=(), kwargs={}, **filter)``
-    
+
         Gets all ``KayakoObjects`` matching a filter.
-            
+
             e.x. ::
-    
+
                 >>> api.filter(Department, args=(2), module='tickets')
                 [<Department module='tickets'...>, <Department module='tickets'...>, ...]
-                
+
     ``api.first(Object, args=(), kwargs={}, **filter)``
-    
+
         Returns the first ``KayakoObject`` found matching a given filter.
-            
+
             e.x. ::
-    
+
                 >>> api.filter(Department, args=(2), module='tickets')
                 <Department module='tickets'>
-    
+
     ``api.get(Object, *args)``
-    
+
         *Get a ``KayakoObject`` of the given type by ID.*
-        
+
         e.x. ::
-    
+
             >>> api.get(User, 112359)
             <User (112359)....>
-        
+
         *Special Cases:*
-            
+
             ``api.get(TicketAttachment, ticketid, attachmentid)``
                 Return a ``TicketAttachment`` for a ``Ticket`` with the given ``Ticket``
                 ID and ``TicketAttachment`` ID.  Getting a specific ``TicketAttachment``
                 gets a ``TicketAttachment`` with the actual attachment contents.
-            
+
             ``api.get(TicketPost, ticketid, ticketpostid)``
                 Return a ``TicketPost`` for a ticket with the given ``Ticket`` ID and
                 ``TicketPost`` ID.
-                    
+
             ``api.get(TicketNote, ticketid, ticketnoteid)``
                 Return a ``TicketNote`` for a ticket with the given ``Ticket`` ID and
                 ``TicketNote`` ID.
-                
+
     **Object persistence methods**
-    
+
     ``kayakoobject.add()``
         *Adds the instance to Kayako.*
     ``kayakoobject.save()``
         *Saves an existing object the instance to Kayako.*
     ``kayakoobject.delete()``
         *Removes the instance from Kayako*
-        
+
     These methods can raise exceptions:
-    
+
         Raises ``KayakoRequestError`` if one of the following is true:
             - The action is not available for the object
             - A required object parameter is UnsetParameter or None (add/save)
             - The API URL cannot be reached
-            
+
         Raises ``KayakoResponseError`` if one of the following is true:
             - There is an error with the request (not HTTP 200 Ok)
             - The XML is in an unexpected format indicating a possible Kayako version mismatch
-            
+
     **Misc API Calls**
-    
+
     ``api.ticket_search(query, ticketid=False, contents=False, author=False, email=False, creatoremail=False, fullname=False, notes=False, usergroup=False, userorganization=False, user=False, tags=False)``
         *Search tickets with a query in the specified fields*
-        
+
     ``api.ticket_search_full(query)``
         *Shorthand for ``api.ticket_search.`` Searches all fields.
-            
+
     **Changes**
-    
+
         *1.1.4*
-        
+
             - Requires Kayako 4.01.240, use 1.1.3 for Kayako 4.01.204
             - ``TicketNote`` now supports get and delete
             - Added ``api.ticket_search``, see Misc API Calls for details.
@@ -313,9 +315,9 @@ class KayakoAPI(object):
             - Added ``TicketTimeTrack`` object. ``api.get_all(TicketTimeTrack, ticket.id)`` or
               ``api.get(TicketTimeTrack, ticket.id, ticket_time_track_id)``
             - Added ``Ticket.timetracks``
-    
+
     **Quick Reference**
-    
+
     ================= ====================================================================== ========================= ======= ======= =====================
     Object            Get All                                                                Get                       Add     Save    Delete
     ================= ====================================================================== ========================= ======= ======= =====================
@@ -339,7 +341,7 @@ class KayakoAPI(object):
     '''
 
     def __init__(self, api_url, api_key, secret_key):
-        ''' 
+        '''
         Creates a new wrapper that will make requests to the given URL using
         the authentication provided.
         '''
@@ -361,7 +363,7 @@ class KayakoAPI(object):
     def _sanitize_parameter(self, parameter):
         '''
         Sanitize a specific object.
-        
+
         - Convert None types to empty strings
         - Convert FOREVER to '0'
         - Convert lists/tuples into sanitized lists
@@ -427,7 +429,7 @@ class KayakoAPI(object):
         # Generate random 10 digit number
         salt = str(random.getrandbits(32))
         # Use HMAC to encrypt the secret key using the salt with SHA256
-        encrypted_signature = hmac.new(self.secret_key, msg=salt, digestmod=hashlib.sha256).digest()
+        encrypted_signature = hmac.new(self.secret_key.encode(), msg=salt.encode(), digestmod=hashlib.sha256).digest()
         # Encode the bytes into base 64
         b64_encoded_signature = base64.b64encode(encrypted_signature)
         return salt, b64_encoded_signature
@@ -454,30 +456,35 @@ class KayakoAPI(object):
             parameters['apikey'] = self.api_key
             parameters['salt'] = salt
             parameters['signature'] = b64signature
-            data = self._post_data(**self._sanitize_parameters(**parameters))
-            request = urllib.request.Request(url, data=data, headers={'Content-length' : len(data) if data else 0})
-            request.get_method = lambda: method
+            data = parameters
+            # request = urllib.request.Request(url, data=data.encode(), headers={'Content-length' : len(data) if data else 0})
+            # request.get_method = lambda: method
         elif method == 'DELETE': # DELETE
             url = '%s?e=%s&apikey=%s&salt=%s&signature=%s' % (self.api_url, urllib.parse.quote(controller), urllib.parse.quote(self.api_key), salt, urllib.parse.quote(b64signature))
-            data = self._post_data(**self._sanitize_parameters(**parameters))
-            request = urllib.request.Request(url, data=data, headers={'Content-length' : len(data) if data else 0})
-            request.get_method = lambda: method
+            data = parameters
+            # request = urllib.request.Request(url, data=data.encode(), headers={'Content-length' : len(data) if data else 0})
+            # request.get_method = lambda: method
         else:
             raise KayakoRequestError('Invalid request method: %s not supported.' % method)
 
         log.debug('REQUEST URL: %s' % url)
         log.debug('REQUEST DATA: %s' % data)
 
-        try:
-            response = urllib.request.urlopen(request)
-        except urllib.error.HTTPError as error:
-            response_error = KayakoResponseError('%s: %s' % (error, error.read()))
-            log.error(response_error)
-            raise response_error
-        except urllib.error.URLError as error:
-            request_error = KayakoRequestError(error)
-            log.error(request_error)
-            raise request_error
+        if method == 'GET':
+            try:
+                response = urllib.request.urlopen(request)
+            except urllib.error.HTTPError as error:
+                response_error = KayakoResponseError('%s: %s' % (error, error.read()))
+                log.error(response_error)
+                raise response_error
+            except urllib.error.URLError as error:
+                request_error = KayakoRequestError(error)
+                log.error(request_error)
+                raise request_error
+        else:
+            response = requests.post(url, data=data)
+            if response.status_code == 200:
+                response = response.content
         return response
 
     ## { Persistence Layer
@@ -491,29 +498,29 @@ class KayakoAPI(object):
     def get_all(self, object, *args, **kwargs):
         '''
         Get all Kayako Objects of the given type.
-        By default, all items are returned. 
-        
+        By default, all items are returned.
+
         e.x.
             >>> api.get_all(Department)
             [<Department....>, ....]
-    
+
         Special Cases:
-        
+
             api.get_all(User, marker=1, maxitems=1000)
                 Return all Users from userid ``marker`` with up to ``maxitems``
                 results (max 1000.)
-                
-            api.get_all(Ticket, departmentid, ticketstatusid= -1, 
+
+            api.get_all(Ticket, departmentid, ticketstatusid= -1,
               ownerstaffid= -1, userid= -1)
                 Return all Tickets filtered by the required argument
                 ``departmentid`` and by the optional keyword arguments.
-                
+
             api.get_all(TicketAttachment, ticketid)
                 Return all TicketAttachments for a Ticket with the given ID.
-                
+
             api.get_all(TicketPost, ticketid)
                 Return all TicketPosts for a Ticket with the given ID.
-                
+
         '''
         return object.get_all(self, *args, **kwargs)
 
@@ -534,7 +541,7 @@ class KayakoAPI(object):
     def filter(self, object, args=(), kwargs={}, **filter):
         '''
         Gets all KayakoObjects matching a filter.
-        
+
         e.x.
             >>> api.filter(Department, args=(2), module='tickets')
             [<Department module='tickets'...>, <Department module='tickets'...>, ...]
@@ -549,7 +556,7 @@ class KayakoAPI(object):
     def first(self, object, args=(), kwargs={}, **filter):
         '''
         Returns the first KayakoObject found matching a given filter.
-        
+
         e.x.
             >>> api.filter(Department, args=(2), module='tickets')
             <Department module='tickets'>
@@ -562,26 +569,26 @@ class KayakoAPI(object):
     def get(self, object, *args):
         '''
         Get a Kayako Object of the given type by ID.
-        
+
         e.x.
             api.get(User, 112359)
             >>> <User....>
-        
+
         Special Cases:
-            
+
             api.get(TicketAttachment, ticketid, attachmentid)
                 Return a TicketAttachment for a ticket with the given Ticket ID
                 and TicketAttachment ID.  Getting a specific TicketAttachment
                 gets a TicketAttachment with the actual attachment contents.
-            
+
             api.get(TicketPost, ticketid, ticketpostid)
                 Return a TicketPost for a ticket with the given Ticket ID and
                 TicketPost ID.
-                
+
             api.get(TicketNote, ticketid, ticketnoteid)
                 Return a TicketNote for a ticket with the given Ticket ID and
                 TicketNote ID.
-        
+
         '''
 
 
@@ -603,7 +610,7 @@ class KayakoAPI(object):
         tags=False          If True, then search the Ticket Tags
         '''
         response = self._request('/Tickets/TicketSearch', 'POST', query=query, ticketid=ticketid, contents=contents, author=author, email=email, creatoremail=creatoremail, fullname=fullname, notes=notes, usergroup=usergroup, userorganization=userorganization, user=user, tags=tags)
-        ticket_xml = etree.parse(response)
+        ticket_xml = etree.fromstring(response)
         return [Ticket(self, **Ticket._parse_ticket(self, ticket_tree)) for ticket_tree in ticket_xml.findall('ticket')]
 
     def user_search(self, query):

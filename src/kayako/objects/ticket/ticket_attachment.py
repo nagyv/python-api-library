@@ -16,6 +16,8 @@ from kayako.exception import KayakoRequestError, KayakoResponseError
 from lxml import etree
 import base64
 
+huge_parser = etree.XMLParser(huge_tree=True)
+
 class TicketAttachment(KayakoObject):
     '''
     Kayako TicketAttachment API Object.
@@ -96,7 +98,7 @@ class TicketAttachment(KayakoObject):
                 return None
             else:
                 raise
-        tree = etree.parse(response)
+        tree = etree.parse(response, parser=huge_parser)
         node = tree.find('attachment')
         if node is None:
             return None
