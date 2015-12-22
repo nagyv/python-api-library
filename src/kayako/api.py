@@ -472,7 +472,7 @@ class KayakoAPI(object):
 
         if method == 'GET':
             try:
-                response = urllib.request.urlopen(request)
+                response = urllib.request.urlopen(request, timeout=None)
             except urllib.error.HTTPError as error:
                 response_error = KayakoResponseError('%s: %s' % (error, error.read()))
                 log.error(response_error)
